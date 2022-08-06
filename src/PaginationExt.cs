@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 // Extension of IQueryable<T>
 // Where T: item type
 public static class PaginationExt {
-	/// @param pagePos From 1 (NOT from 0).
-	/// @param pageSize How many items in each page (for eg,. 10, 20, 50,...).
+	/// @param pagePos Position of the page. Index from 1 (NOT from 0).
+	/// @param pageSize Page item count. Indicates how many items in each page (for eg,. 10, 20, 50,...).
 	/// Note: given `pageIndex * pageSize` must be in range of Int32.
 	public static async Task<PagedResult<T>> PaginateDk<T>(this IQueryable<T> query, int pagePos = 1, int pageSize = 50) where T : class {
 		// Maybe zero- or overflow
@@ -14,18 +14,19 @@ public static class PaginationExt {
 
 		// Use `CountAsync()` since we are using EF Core.
 		// Use `Count()` will lead to weird result.
-		var rowCount = await query.CountAsync();
+		var totalItemCount = await query.CountAsync();
 
 		// Now take some items in range [offset + 1, offset + pageSize]
 		var items = query.Skip(offset).Take(pageSize).ToArray();
 
 		// This calculation is faster than `Math.Ceiling(rowCount / pageSize)`
-		var pageCount = (rowCount + pageSize - 1) / pageSize;
+		var pageCount = (totalItemCount + pageSize - 1) / pageSize;
 
 		return new PagedResult<T>(
 			items: items,
 			pagePos: pagePos,
-			pageCount: pageCount
+			pageCount: pageCount,
+			totalItemCount: totalItemCount
 		);
 	}
 }
@@ -40,9 +41,13 @@ public class PagedResult<T> where T : class {
 	/// Total number of page
 	public readonly int pageCount;
 
-	public PagedResult(T[]? items, int pagePos, int pageCount) {
+	/// Total item count
+	public readonly int totalItemCount;
+
+	public PagedResult(T[]? items, int pagePos, int pageCount, int totalItemCount) {
 		this.items = items;
 		this.pagePos = pagePos;
 		this.pageCount = pageCount;
+		this.totalItemCount = totalItemCount;
 	}
 }
