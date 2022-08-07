@@ -16,8 +16,8 @@ public static class PaginationExt {
 		// Use `Count()` will lead to weird result.
 		var totalItemCount = await query.CountAsync();
 
-		// Now take some items in range [offset + 1, offset + pageSize]
-		var items = query.Skip(offset).Take(pageSize).ToArray();
+		// Query and take some items in range [offset + 1, offset + pageSize]
+		var items = await query.Skip(offset).Take(pageSize).ToArrayAsync();
 
 		// This calculation is faster than `Math.Ceiling(rowCount / pageSize)`
 		var pageCount = (totalItemCount + pageSize - 1) / pageSize;
