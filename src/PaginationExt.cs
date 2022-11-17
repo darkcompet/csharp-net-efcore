@@ -53,16 +53,19 @@ public static class PaginationExt {
 		// TechNote: Use `Count()` will lead to weird result !! Don't know why.
 		var totalItemCount = leftPaddingItems.Length + (await query.CountAsync());
 
+		// Console.WriteLine("---> query.Count(): " + (query.Count()));
+		// Console.WriteLine("---> await query.CountAsync(): " + (await query.CountAsync()));
+
 		// Query and take some items in range [offset, offset + pageSize - 1]
 		var items = new List<T>();
-		if (offset < leftPaddingItems.Length) {
-			var takeCount = Math.Min(leftPaddingItems.Length - offset, pageSize);
-			items.AddRange(leftPaddingItems.Skip(offset).Take(takeCount));
+		var takeCount1 = Math.Min(leftPaddingItems.Length - offset, pageSize);
+		if (takeCount1 > 0) {
+			items.AddRange(leftPaddingItems.Skip(offset).Take(takeCount1));
 		}
-		if (items.Count() < pageSize) {
-			var takeCount = pageSize - items.Count();
+		var takeCount2 = pageSize - items.Count();
+		if (takeCount2 > 0) {
 			var skipCount = Math.Max(0, offset - leftPaddingItems.Length);
-			items.AddRange(await query.Skip(skipCount).Take(takeCount).ToArrayAsync());
+			items.AddRange(await query.Skip(skipCount).Take(takeCount2).ToArrayAsync());
 		}
 
 		// This calculation is faster than `Math.Ceiling(rowCount / pageSize)`
@@ -78,8 +81,9 @@ public static class PaginationExt {
 }
 
 public class PagedResult<T> where T : class {
-	/// Item list in the page
-	public readonly T[]? items;
+	/// Items in the page.
+	/// Note: can use `IEnumerable<T>` for more abstract that can cover both of array and list.
+	public readonly T[] items;
 
 	/// Position (1-index-based) of current page
 	public readonly int pagePos;
@@ -90,7 +94,7 @@ public class PagedResult<T> where T : class {
 	/// Total item count
 	public readonly int totalItemCount;
 
-	public PagedResult(T[]? items, int pagePos, int pageCount, int totalItemCount) {
+	public PagedResult(T[] items, int pagePos, int pageCount, int totalItemCount) {
 		this.items = items;
 		this.pagePos = pagePos;
 		this.pageCount = pageCount;
