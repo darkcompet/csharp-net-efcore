@@ -13,17 +13,17 @@ public static class PaginationExt {
 		int pagePos,
 		int pageSize
 	) where T : class {
-		// Offset equals to item-count far to now.
-		// Prevent negative index since maybe zero- or overflow
+		// Offset equals to item-count as far to now. For eg,. offset is 50 when query at page 2 with item 50.
+		// TechNote: use max to prevent negative index from overflow
 		var offset = Math.Max(0, (pagePos - 1) * pageSize);
 
-		// Use `CountAsync()` since we are using EF Core.
-		// TechNote: Use `Count()` will lead to weird result !! Don't know why.
+		// Number of all items of the query.
 		var totalItemCount = await query.CountAsync();
 
 		// Query and take some items in range [offset, offset + pageSize - 1]
 		var items = await query.Skip(offset).Take(pageSize).ToArrayAsync();
 
+		// Number of page.
 		// This calculation is faster than `Math.Ceiling(rowCount / pageSize)`
 		var pageCount = (totalItemCount + pageSize - 1) / pageSize;
 
@@ -45,16 +45,11 @@ public static class PaginationExt {
 		int pagePos,
 		int pageSize
 	) where T : class {
-		// Offset equals to item-count far to now.
-		// Prevent negative index since maybe zero- or overflow
+		// Offset equals to item-count as far to now. For eg,. offset is 50 when query at page 2 with item 50.
+		// TechNote: use max to prevent negative index from overflow
 		var offset = Math.Max(0, (pagePos - 1) * pageSize);
 
-		// Use `CountAsync()` since we are using EF Core.
-		// TechNote: Use `Count()` will lead to weird result !! Don't know why.
 		var totalItemCount = leftPaddingItems.Length + (await query.CountAsync());
-
-		// Console.WriteLine("---> query.Count(): " + (query.Count()));
-		// Console.WriteLine("---> await query.CountAsync(): " + (await query.CountAsync()));
 
 		// Query and take some items in range [offset, offset + pageSize - 1]
 		var items = new List<T>();
