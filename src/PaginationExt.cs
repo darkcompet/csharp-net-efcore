@@ -41,7 +41,7 @@ public static class PaginationExt {
 	/// @param pageSize: Item count in the page. For eg,. 10, 20, 50,...
 	public static async Task<PagedResult<T>> PaginateDk<T>(
 		this IQueryable<T> query,
-		T[] leftPaddingItems,
+		IEnumerable<T> leftPaddingItems,
 		int pagePos,
 		int pageSize
 	) where T : class {
@@ -49,17 +49,18 @@ public static class PaginationExt {
 		// TechNote: use max to prevent negative index from overflow
 		var offset = Math.Max(0, (pagePos - 1) * pageSize);
 
-		var totalItemCount = leftPaddingItems.Length + (await query.CountAsync());
+		var leftPaddingItemCount = leftPaddingItems.Count();
+		var totalItemCount = leftPaddingItemCount + (await query.CountAsync());
 
 		// Query and take some items in range [offset, offset + pageSize - 1]
 		var items = new List<T>();
-		var takeCount1 = Math.Min(leftPaddingItems.Length - offset, pageSize);
+		var takeCount1 = Math.Min(leftPaddingItemCount - offset, pageSize);
 		if (takeCount1 > 0) {
 			items.AddRange(leftPaddingItems.Skip(offset).Take(takeCount1));
 		}
 		var takeCount2 = pageSize - items.Count();
 		if (takeCount2 > 0) {
-			var skipCount = Math.Max(0, offset - leftPaddingItems.Length);
+			var skipCount = Math.Max(0, offset - leftPaddingItemCount);
 			items.AddRange(await query.Skip(skipCount).Take(takeCount2).ToArrayAsync());
 		}
 
