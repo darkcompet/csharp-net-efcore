@@ -58,7 +58,7 @@ public static class PaginationExt {
 		if (takeCount1 > 0) {
 			items.AddRange(leftPaddingItems.Skip(offset).Take(takeCount1));
 		}
-		var takeCount2 = pageSize - items.Count();
+		var takeCount2 = pageSize - items.Count;
 		if (takeCount2 > 0) {
 			var skipCount = Math.Max(0, offset - leftPaddingItemCount);
 			items.AddRange(await query.Skip(skipCount).Take(takeCount2).ToArrayAsync());
