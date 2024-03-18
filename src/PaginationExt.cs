@@ -1,5 +1,6 @@
 namespace Tool.Compet.EntityFrameworkCore;
 
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 
 // Extension of IQueryable<T>
@@ -29,9 +30,7 @@ public static class PaginationExt {
 
 		return new PagedResult<T>(
 			items: items,
-			pagePos: pagePos,
-			pageCount: pageCount,
-			totalItemCount: totalItemCount
+			pager: new(pagePos, pageCount, totalItemCount)
 		);
 	}
 
@@ -68,32 +67,30 @@ public static class PaginationExt {
 		var pageCount = (totalItemCount + pageSize - 1) / pageSize;
 
 		return new PagedResult<T>(
-			items: items.ToArray(),
-			pagePos: pagePos,
-			pageCount: pageCount,
-			totalItemCount: totalItemCount
+			items: [.. items],
+			pager: new(pagePos, pageCount, totalItemCount)
 		);
 	}
 }
 
-public class PagedResult<T> where T : class {
+public class PagedResult<T>(T[] items, Pager pager) where T : class {
 	/// Items in the page.
 	/// Note: can use `IEnumerable<T>` for more abstract that can cover both of array and list.
-	public readonly T[] items;
+	public readonly T[] items = items;
 
-	/// Position (1-index-based) of current page
-	public readonly int pagePos;
+	public readonly Pager pager = pager;
+}
 
-	/// Total number of page
-	public readonly int pageCount;
+public class Pager(int pos, int count, int total) {
+	/// Page position (1-based index) of current page
+	[JsonPropertyName(name: "pos")]
+	public int pos { get; set; } = pos;
+
+	/// Page count
+	[JsonPropertyName(name: "count")]
+	public int count { get; set; } = count;
 
 	/// Total item count
-	public readonly int totalItemCount;
-
-	public PagedResult(T[] items, int pagePos, int pageCount, int totalItemCount) {
-		this.items = items;
-		this.pagePos = pagePos;
-		this.pageCount = pageCount;
-		this.totalItemCount = totalItemCount;
-	}
+	[JsonPropertyName(name: "total")]
+	public int total { get; set; } = total;
 }
