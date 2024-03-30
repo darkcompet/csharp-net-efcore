@@ -9,7 +9,7 @@ public static class PaginationExt {
 	/// Note: given `pageIndex * pageSize` must be in range of Int32.
 	/// @param pagePos: Index (from 1) of the page. For eg,. 1, 2, 3,...
 	/// @param pageSize: Item count in the page. For eg,. 10, 20, 50,...
-	public static async Task<PagedResult<T>> PaginateDk<T>(
+	public static async Task<PagedResult<T>> PaginateAsyncDk<T>(
 		this IQueryable<T> query,
 		int pagePos,
 		int pageSize
@@ -38,7 +38,7 @@ public static class PaginationExt {
 	/// @param leftPaddingItems: Items which be added at left of query result.
 	/// @param pagePos: Index (from 1) of the page. For eg,. 1, 2, 3,...
 	/// @param pageSize: Item count in the page. For eg,. 10, 20, 50,...
-	public static async Task<PagedResult<T>> PaginateDk<T>(
+	public static async Task<PagedResult<T>> PaginateAsyncDk<T>(
 		this IQueryable<T> query,
 		IEnumerable<T> leftPaddingItems,
 		int pagePos,
