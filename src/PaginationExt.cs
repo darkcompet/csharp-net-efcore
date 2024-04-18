@@ -88,14 +88,14 @@ public class PagedResult<T>(T[] items, Pager pager) where T : class {
 
 public class Pager(int page, int count, int total) {
 	/// Page position (1-based index)
-	[JsonPropertyName(name: "page")]
+	[JsonPropertyName("page")]
 	public int page { get; set; } = page;
 
 	/// Page count
-	[JsonPropertyName(name: "count")]
+	[JsonPropertyName("count")]
 	public int count { get; set; } = count;
 
 	/// Total item count
-	[JsonPropertyName(name: "total")]
+	[JsonPropertyName("total")]
 	public int total { get; set; } = total;
 }
